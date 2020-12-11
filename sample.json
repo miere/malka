@@ -1,0 +1,4 @@
+[
+    { "topic_name": "user.delete", "target_functions": ["user_deleted"] },
+    { "topic_name": "user.update", "topic_number_of_consumers": 2, "target_functions": ["user_updated"] }
+]
