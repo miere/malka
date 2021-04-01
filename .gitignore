@@ -3,3 +3,6 @@
 
 # Cargo
 target
+
+# Terraform
+.terraform
