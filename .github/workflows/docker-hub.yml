@@ -1,0 +1,39 @@
+name: Docker Hub
+
+on:
+  create:
+    tags:
+      - v*
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Export Script Parameter
+        shell: bash
+        run: |
+           CURRENT_VERSION=$(cargo pkgid --manifest-path malka-consumer/Cargo.toml | cut -d '#' -f 2)
+           echo "CURRENT_VERSION=${CURRENT_VERSION}" >> $GITHUB_ENV
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          push: true
+          tags: "miere/malka-consumer:${{ env.CURRENT_VERSION }},miere/malka-consumer"
+
