@@ -58,7 +58,7 @@ mod json_tests {
     const EXPECTED_JSON: &str = "{\"key\":\"my_key\",\"value\":\"{\\\"hello\\\":\\\"world\\\"}\"}";
 
     #[test]
-    fn should_be_able_to_serialize_InFlightRecord_into_json_string() {
+    fn should_be_able_to_serialize_in_flight_record_into_json_string() {
         let key = Some(EXPECTED_KEY.as_bytes());
         let value = Some(EXPECTED_VALUE.as_bytes());
 

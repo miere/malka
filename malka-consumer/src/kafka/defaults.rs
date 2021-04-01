@@ -110,7 +110,10 @@ mod integration_tests {
     use crate::kafka::consumer::mocks::MockKafkaConsumerListener;
 
     #[tokio::test]
+    #[ignore]
     async fn should_relay_in_flight_msg_to_the_consumer() {
+        env_logger::init();
+
         let mut config = create_kafka_config();
         let producer: BaseProducer = config.create_with_context( DefaultProducerContext{} ).unwrap();
 

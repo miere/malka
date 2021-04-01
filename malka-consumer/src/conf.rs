@@ -54,8 +54,8 @@ mod test {
     #[test]
     fn should_serialize_subscription_config_correctly() {
         let json = r#"[
-         { "topic_name": "user.delete", target_functions: ["user_deleted"] },
-         { "topic_name": "user.update", topic_number_of_consumers: 2, target_functions: ["user_updated"] }
+         { "topic_name": "user.delete", "target_functions": ["user_deleted"] },
+         { "topic_name": "user.update", "topic_number_of_consumers": 2, "target_functions": ["user_updated"] }
         ]"#;
 
         let configs: Vec<SubscriptionConfig> = serde_json::from_str(json).unwrap();
@@ -70,11 +70,11 @@ mod test {
         assert_eq!(expected_first_cfg, configs[0]);
 
         let expected_second_cfg = SubscriptionConfig {
-            topic_name: "user.delete".to_string(),
+            topic_name: "user.update".to_string(),
             topic_number_of_consumers: 2,
             consumer_configuration: None,
             target_functions: vec!("user_updated".to_string())
         };
-        assert_eq!(expected_second_cfg, configs[0]);
+        assert_eq!(expected_second_cfg, configs[1]);
     }
 }
