@@ -1,6 +1,14 @@
 # malka
 A service that leverages AWS Lambda as first-class Kafka consumers.
 
+## Documentation
+The main documentation is available in [the Wiki pages](https://github.com/miere/malka/wiki/) of this
+repository. Here are most important topics:
+- [Deploying Malka in your AWS infrastructure](https://github.com/miere/malka/wiki/Deploying-Malka-in-your-AWS)
+- [AWS Deployment Infrastructure Overview](https://github.com/miere/malka/wiki/AWS-Deployment-Infrastructure)
+- [Docker Container Architecture Overview](https://github.com/miere/malka/wiki/Docker-Container-Architecture)
+
+
 ## Usage
 Malka is containerised and publicaly available [for download](https://hub.docker.com/r/miere/malka-consumer)
 as a Docker image. You can use this image to deploy it on your favourite container orchestration
@@ -45,13 +53,6 @@ module "malka" {
 }
 ```
 For a complete example, please check the [example folder](https://github.com/miere/malka/blob/main/example/main.tf).
-
-## Documentation
-The main documentation is available in [the Wiki pages](https://github.com/miere/malka/wiki/) of this
-repository. Here are most important topics:
-- [Deploying Malka in your AWS infrastructure](https://github.com/miere/malka/wiki/Deploying-Malka-in-your-AWS)
-- [AWS Deployment Infrastructure Overview](https://github.com/miere/malka/wiki/AWS-Deployment-Infrastructure)
-- [Docker Container Architecture Overview](https://github.com/miere/malka/wiki/Docker-Container-Architecture)
 
 
 ## License
