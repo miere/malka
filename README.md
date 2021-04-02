@@ -47,42 +47,24 @@ module "malka" {
 For a complete example, please check the [example folder](https://github.com/miere/malka/blob/main/example/main.tf).
 
 ## Documentation
-`TBD`
+The main documentation is available in [the Wiki pages](https://github.com/miere/malka/wiki/) of this
+repository. Here are most important topics:
+- [Deploying Malka in your AWS infrastructure](https://github.com/miere/malka/wiki/Deploying-Malka-in-your-AWS)
+- [AWS Deployment Infrastructure Overview](https://github.com/miere/malka/wiki/AWS-Deployment-Infrastructure)
+- [Docker Container Architecture Overview](https://github.com/miere/malka/wiki/Docker-Container-Architecture)
 
-## Reporting Bugs/Feature Requests
-We welcome you to use the GitHub issue tracker to report bugs or suggest features.
-
-When filing an issue, please check existing open, or recently closed, issues to make sure somebody else hasn't already
-reported the issue. Please try to include as much information as you can. Details like these are incredibly useful:
-
-* A reproducible test case or series of steps
-* The version of our code being used
-* Any modifications you've made relevant to the bug
-* Anything unusual about your environment or deployment
-
-
-## Contributing via Pull Requests
-Contributions via pull requests are much appreciated. Before sending us a pull request, please ensure that:
-
-1. You are working against the latest source on the *master* branch.
-2. You check existing open, and recently merged, pull requests to make sure someone else hasn't addressed the problem already.
-3. You open an issue to discuss any significant work - we would hate for your time to be wasted.
-
-To send us a pull request, please:
-
-1. Fork the repository.
-2. Modify the source; please focus on the specific change you are contributing. If you also reformat all the code, it will be hard for us to focus on your change.
-3. Ensure local tests pass.
-4. Commit to your fork using clear commit messages.
-5. Send us a pull request, answering any default questions in the pull request interface.
-6. Pay attention to any automated CI failures reported in the pull request, and stay involved in the conversation.
-
-GitHub provides additional document on [forking a repository](https://help.github.com/articles/fork-a-repo/) and
-[creating a pull request](https://help.github.com/articles/creating-a-pull-request/).
-
-
-## Finding contributions to work on
-Looking at the existing issues is a great way to find something to contribute on. As our projects, by default, use the default GitHub issue labels ((enhancement/bug/duplicate/help wanted/invalid/question/wontfix), looking at any 'help wanted' issues is a great place to start.
 
 ## License
-This is release under the Apache License 2 terms.
+Copyright 2021 - Malka maintainers and contributors
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
