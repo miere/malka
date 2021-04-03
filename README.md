@@ -45,7 +45,7 @@ module "malka" {
       consumer_configuration = {},
       
       # The AWS functions that will receive the notification
-      target_functions = ["appetifyMailEngine"]
+      target_functions = ["my_lambda_function"]
     }
   ]
 }
