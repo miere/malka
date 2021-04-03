@@ -15,7 +15,7 @@ services:
           - zookeeper-datalog:/datalog
 
     kafka:
-        image: confluentinc/cp-kafka:5.2.2
+        image: confluentinc/cp-kafka:5.3.4
         hostname: kafka
         ports:
             - "9092:9092"
