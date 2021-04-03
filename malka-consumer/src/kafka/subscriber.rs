@@ -8,6 +8,8 @@ use KafkaConsumerResult::{Failed, Succeeded};
 
 use crate::kafka::consumer::{KafkaConsumer, KafkaConsumerListener, KafkaConsumerResult, KafkaConsumerTransaction};
 
+/// A simplified Kafka subscriber. It wraps away the complexity of
+/// dealing with transactions when consuming messages.
 pub struct KafkaSubscriber<CONSUMER, LISTENER>
   where CONSUMER: KafkaConsumer<LISTENER> + KafkaConsumerTransaction,
         LISTENER: KafkaConsumerListener + std::marker::Sync
@@ -21,6 +23,8 @@ impl<CONSUMER, LISTENER> KafkaSubscriber<CONSUMER, LISTENER>
     where CONSUMER: KafkaConsumer<LISTENER> + KafkaConsumerTransaction,
           LISTENER: KafkaConsumerListener + std::marker::Sync {
 
+    /// Performs the message consumption loop.
+    /// The loop will be interrupted once `should_poll_next_messages` is set to `false`.
     pub async fn main_loop(&self) {
         while self.should_poll_next_messages.load(Acquire) {
             trace!("Polling messages...");
@@ -32,11 +36,19 @@ impl<CONSUMER, LISTENER> KafkaSubscriber<CONSUMER, LISTENER>
         }
     }
 
+    /// Commits the transaction and moves the cursor forward once
+    /// the message was correctly ingested.
     async fn commit(&self) {
         debug!("Messages has been consumed");
         self.consumer.commit().await;
     }
 
+    /// Performs a rollback in the last execution in case of failure.
+    /// It's expected, though, only failures related to network communication
+    /// to be handled here. The message will be considered delivered even if
+    /// the Lambda function failed to handle the event. Dead-Letter Queues,
+    /// Backoff and Retries are capabilities provided out-of-box from AWS Lambda,
+    /// therefore doesn't need to be implemented in this application.
     async fn rollback(&self, cause: String) {
         error!("Failed to consume message: {}", cause);
         self.consumer.rollback().await;

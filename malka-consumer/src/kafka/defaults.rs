@@ -16,7 +16,8 @@ const MSG_FAIL_TO_ROLLBACK: &str = "Could not rollback. Interrupting this consum
 const TIMEOUT: Duration = Duration::from_secs(30);
 const KAFKA_TIMEOUT: Timeout = Timeout::After(TIMEOUT);
 
-/// The default KafkaConsumer implementation.
+/// The default KafkaConsumer implementation. It wraps away
+/// the complexity of consuming message using `rdkafka`.
 pub struct DefaultKafkaConsumer {
     stream_consumer: StreamConsumer<DefaultConsumerContext>,
     max_buffer_size: usize,

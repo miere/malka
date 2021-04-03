@@ -29,6 +29,7 @@ pub trait KafkaConsumerListener {
     async fn consume(&self, record: Vec<InFlightRecord>) -> KafkaConsumerResult;
 }
 
+/// Represents an in-flight message.
 #[derive(Serialize)]
 pub struct InFlightRecord {
     pub key: Option<String>,

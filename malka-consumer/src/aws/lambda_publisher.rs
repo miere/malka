@@ -8,6 +8,7 @@ use crate::kafka::consumer::{
     InFlightRecord, KafkaConsumerListener, KafkaConsumerResult
 };
 
+/// A `KafkaConsumerListener` implementation that invokes AWS Lambda functions.
 pub struct AwsLambdaKafkaConsumerListener {
     function_name: String,
     lambda_client: LambdaClient
