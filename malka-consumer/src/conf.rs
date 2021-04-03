@@ -2,6 +2,7 @@ use serde::Deserialize;
 use std::collections::HashMap;
 use rdkafka::ClientConfig;
 use std::env;
+use log::{info};
 use rdkafka::config::RDKafkaLogLevel;
 
 #[derive(Deserialize, Clone, Debug, PartialEq)]
@@ -21,6 +22,8 @@ impl SubscriptionConfig {
     /// Creates a rdkafka::ClientConfig object based on this configuration.
     pub fn as_client_config_for(&self, target_function: &str) -> ClientConfig {
         let group_id = format!("{}-{}", &self.topic_name, target_function);
+        info!("Consumer Group ID: {}", &group_id);
+
         let mut config = SubscriptionConfig::create_default_kafka_config();
         config.set("group.id", group_id);
 
@@ -38,9 +41,15 @@ impl SubscriptionConfig {
 
         let kafka_brokers = env::var("KAFKA_BROKERS")
             .unwrap_or("127.0.0.1:9092".to_string());
+        info!("Connecting to brokers: {}", &kafka_brokers);
+
+        let security_protocol = env::var("KAFKA_SECURITY_PROTOCOL")
+            .unwrap_or("plaintext".to_string());
+        info!("Using security protocol: {}", &security_protocol);
 
         cfg.set("bootstrap.servers", kafka_brokers)
-            .set("auto.commit.enable", "false")
+            .set("security.protocol", security_protocol)
+            .set("enable.auto.commit", "false")
             .set_log_level(RDKafkaLogLevel::Debug);
 
         return cfg;

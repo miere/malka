@@ -103,6 +103,8 @@ impl KafkaConsumerTransaction
 
 #[cfg(test)]
 mod integration_tests {
+    use std::sync::atomic::Ordering::Relaxed;
+
     use rdkafka::ClientConfig;
     use rdkafka::config::RDKafkaLogLevel;
     use rdkafka::producer::{BaseProducer, BaseRecord, DefaultProducerContext};
