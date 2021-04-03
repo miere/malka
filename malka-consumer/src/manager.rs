@@ -53,8 +53,12 @@ impl SubscriptionManager {
     {
         let config = subscription.as_client_config_for(target_function);
         let listener = AwsLambdaKafkaConsumerListener::create(target_function.to_string());
-        let consumer = DefaultKafkaConsumer::create(subscription.topic_name.to_string(), 1, 100,config)?;
         let should_poll_next_messages = Arc::new(AtomicBool::new(true));
+        let consumer = DefaultKafkaConsumer::create(
+            subscription.topic_name.to_string(),
+            subscription.topic_max_buffer_size,
+            subscription.topic_max_buffer_await_time,
+            config)?;
 
         Ok(KafkaSubscriber {
             should_poll_next_messages,

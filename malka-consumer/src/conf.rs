@@ -10,12 +10,18 @@ pub struct SubscriptionConfig {
     pub topic_name: String,
     #[serde(default = "min_number_of_consumers")]
     pub topic_number_of_consumers: u32,
+    #[serde(default = "max_buffer_size")]
+    pub topic_max_buffer_size: usize,
+    #[serde(default = "max_buffer_await_time_ms")]
+    pub topic_max_buffer_await_time: u64,
     #[serde(default)]
     pub consumer_configuration: Option<HashMap<String, String>>,
     pub target_functions: Vec<String>
 }
 
 fn min_number_of_consumers() -> u32 { 1 }
+fn max_buffer_size() -> usize { 100 }
+fn max_buffer_await_time_ms() -> u64 { 1000 }
 
 impl SubscriptionConfig {
 
@@ -73,6 +79,8 @@ mod test {
         let expected_first_cfg = SubscriptionConfig {
             topic_name: "user.delete".to_string(),
             topic_number_of_consumers: 1,
+            topic_max_buffer_await_time: 1000,
+            topic_max_buffer_size: 100,
             consumer_configuration: None,
             target_functions: vec!("user_deleted".to_string())
         };
@@ -81,6 +89,8 @@ mod test {
         let expected_second_cfg = SubscriptionConfig {
             topic_name: "user.update".to_string(),
             topic_number_of_consumers: 2,
+            topic_max_buffer_await_time: 1000,
+            topic_max_buffer_size: 100,
             consumer_configuration: None,
             target_functions: vec!("user_updated".to_string())
         };
