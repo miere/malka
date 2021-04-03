@@ -15,18 +15,18 @@ data "aws_subnet_ids" "default" {
 
 # Configure Malka
 module "malka" {
-  source = "github.com/miere/malka-terraform-module?ref=v0.1.0"
+  source  = "miere/malka/aws"
+  version = "0.2.0"
 
   configuration = [{
     topic_name = "topic",
     topic_number_of_consumers = 2,
     consumer_configuration = {},
-    target_functions = ["appetifyMailEngine"]
+    target_functions = ["my_lambda_function"]
   }]
 
   kafka_brokers = ["localhost:9021"]
-
-  region = "us-east-1"
+  kafka_security_protocol = "plaintext"
 
   subnet_ids = data.aws_subnet_ids.default.ids
   vpc_id = data.aws_vpc.default.id
