@@ -1,5 +1,5 @@
 # malka
-A service that leverages AWS Lambda as first-class Kafka consumers.
+A managed service that leverages AWS Lambda as first-class Kafka consumers.
 
 ## Documentation
 The main documentation is available in [the Wiki pages](https://github.com/miere/malka/wiki/) of this
@@ -18,10 +18,8 @@ The easiest (but a bit opinionated) method to deploy it would be using Terraform
 
 ```terraform
 module "malka" {
-  source = "github.com/miere/malka-terraform-module?ref=v0.1.0"
-  
-  # AWS Region
-  region = "us-east-1"
+  source  = "miere/malka/aws"
+  version = "0.2.0"
   
   # AWS network configuration
   subnet_ids = data.aws_subnet_ids.default.ids
@@ -52,8 +50,9 @@ module "malka" {
   ]
 }
 ```
-For a complete example, please check the [example folder](https://github.com/miere/malka/blob/main/example/main.tf).
-
+For a complete example, please check the [example folder](https://github.com/miere/malka/blob/main/example/main.tf). For
+more details, please check the [documentation page](https://github.com/miere/malka/wiki/Deploying-Malka-in-your-AWS) that
+covers this topic.
 
 ## License
 Copyright 2021 - Malka maintainers and contributors
