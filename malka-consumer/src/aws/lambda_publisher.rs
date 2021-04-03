@@ -1,6 +1,7 @@
 use async_trait::async_trait;
 use bytes::Bytes;
-use rusoto_core::{Region};
+use log::error;
+use rusoto_core::Region;
 use rusoto_lambda::{InvocationRequest, Lambda, LambdaClient};
 
 use crate::kafka::consumer::{
@@ -39,15 +40,34 @@ impl KafkaConsumerListener
         }).await;
 
         match result {
-            Ok(response) =>
-                match response.function_error {
-                    Some(error) => KafkaConsumerResult::Failed(error),
-                    None => KafkaConsumerResult::Succeeded,
-                },
+            Ok(response) => {
+                if let Some(error_msg) = response.function_error {
+                    error!("Lambda function failed to handle request: {}", error_msg);
+                }
+                KafkaConsumerResult::Succeeded
+            },
             Err(cause) => {
                 let msg = format!("Failed to invoke function {}: {}", &self.function_name, cause);
                 KafkaConsumerResult::Failed(msg)
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod test {
+
+    use super::*;
+
+    #[tokio::test]
+    #[ignore]
+    async fn should_invoke_lambda() {
+        let key = "k".as_bytes();
+        let value = "{'hello':'world'}".as_bytes();
+        let record = InFlightRecord::create(Some(key),Some(value));
+
+        let consumer = AwsLambdaKafkaConsumerListener::create("user_deleted".to_string());
+        let result = consumer.consume(vec!(record)).await;
+        println!("Result: {:?}", result)
     }
 }

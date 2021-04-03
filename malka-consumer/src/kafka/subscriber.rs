@@ -39,14 +39,7 @@ impl<CONSUMER, LISTENER> KafkaSubscriber<CONSUMER, LISTENER>
 
     async fn rollback(&self, cause: String) {
         error!("Failed to consume message: {}", cause);
-        // Will commit anyway, ensuring at-most-once delivery behaviour
-        //
-        // We might want to revisit this in the future, perhaps including
-        // a flag allowing have different behaviours for different consumers.
-        //
-        // Another desirable behaviour would be a dead-letter topic, although
-        // AWS Lambda has this capability as well.
-        self.consumer.commit().await;
+        self.consumer.rollback().await;
     }
 }
 

@@ -1,13 +1,15 @@
-use crate::error::Result;
-use crate::kafka::consumer::{KafkaConsumer, KafkaConsumerListener, KafkaConsumerResult, InFlightRecord, KafkaConsumerTransaction};
-use rdkafka::message::BorrowedMessage;
-use rdkafka::{Message, ClientConfig, TopicPartitionList};
-use rdkafka::consumer::{StreamConsumer, DefaultConsumerContext, Consumer, CommitMode};
 use std::time::{Duration, Instant};
-use rdkafka::util::Timeout;
-use async_trait::async_trait;
 
-const MSG_FAIL_TO_POLL: &str = "Could not poll messages. Interrupting this consumer to avoid data loss.";
+use async_trait::async_trait;
+use rdkafka::{ClientConfig, Message, TopicPartitionList};
+use rdkafka::consumer::{CommitMode, Consumer, DefaultConsumerContext, StreamConsumer};
+use rdkafka::message::BorrowedMessage;
+use rdkafka::util::Timeout;
+
+use crate::error::Result;
+use crate::kafka::consumer::{InFlightRecord, KafkaConsumer, KafkaConsumerListener, KafkaConsumerResult, KafkaConsumerTransaction};
+
+const MSG_FAIL_TO_POLL: &str = "Could not poll messages.";
 const MSG_FAIL_TO_COMMIT: &str = "Could not commit message. Interrupting this consumer to avoid data loss.";
 const MSG_FAIL_TO_ROLLBACK: &str = "Could not rollback. Interrupting this consumer to avoid data loss.";
 
@@ -103,11 +105,11 @@ impl KafkaConsumerTransaction
 mod integration_tests {
     use rdkafka::ClientConfig;
     use rdkafka::config::RDKafkaLogLevel;
-    use rdkafka::producer::{DefaultProducerContext, BaseProducer, BaseRecord};
-    use crate::kafka::defaults::DefaultKafkaConsumer;
-    use crate::kafka::consumer::{KafkaConsumerResult, KafkaConsumer};
-    use std::sync::atomic::Ordering::{Relaxed};
+    use rdkafka::producer::{BaseProducer, BaseRecord, DefaultProducerContext};
+
+    use crate::kafka::consumer::{KafkaConsumer, KafkaConsumerResult};
     use crate::kafka::consumer::mocks::MockKafkaConsumerListener;
+    use crate::kafka::defaults::DefaultKafkaConsumer;
 
     #[tokio::test]
     #[ignore]
