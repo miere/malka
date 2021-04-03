@@ -6,3 +6,8 @@ target
 
 # Terraform
 .terraform
+*.tfstate
+*.tfstate.backup
+
+# Misc
+*.generated

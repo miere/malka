@@ -9,7 +9,7 @@ thiserror = "1.0.0"
 serde = "1.0.0"
 serde_json = "1.0.0"
 log = "0.4.14"
-rdkafka = { version = "0.25", features = ["cmake-build","tokio"] }
+rdkafka = { version = "0.25", features = ["cmake-build","tokio","ssl-vendored"] }
 rusoto_core = "0.46.0"
 rusoto_lambda = "0.46.0"
 tokio = "1.2"
