@@ -5,6 +5,7 @@ use rdkafka::{ClientConfig, Message, TopicPartitionList};
 use rdkafka::consumer::{CommitMode, Consumer, DefaultConsumerContext, StreamConsumer};
 use rdkafka::message::BorrowedMessage;
 use rdkafka::util::Timeout;
+use log::debug;
 
 use crate::error::Result;
 use crate::kafka::consumer::{InFlightRecord, KafkaConsumer, KafkaConsumerListener, KafkaConsumerResult, KafkaConsumerTransaction};
@@ -70,7 +71,9 @@ impl<LISTENER> KafkaConsumer<LISTENER> for DefaultKafkaConsumer
     async fn consume(&self, listener: &LISTENER) -> KafkaConsumerResult {
         match self.consume_and_buffer_messages().await {
             Ok(received_message) => {
-                listener.consume(received_message).await
+                let result = listener.consume(received_message).await;
+                debug!("{} message(s) consumed", received_message.len());
+                result
             },
             Err(failure) => {
                 let msg = format!("{}. \nDetails: {:?}", MSG_FAIL_TO_POLL, failure);

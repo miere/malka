@@ -13,7 +13,7 @@ pub mod manager;
 async fn main() -> error::Result<()> {
     let args = env::args();
 
-    return match args.len() {
+    match args.len() {
         0 | 1 => Err(error::KnownHandledErrors::InvalidParameters),
         _ => run_consumer(args).await
     }

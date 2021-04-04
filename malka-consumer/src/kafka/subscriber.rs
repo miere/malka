@@ -39,8 +39,8 @@ impl<CONSUMER, LISTENER> KafkaSubscriber<CONSUMER, LISTENER>
     /// Commits the transaction and moves the cursor forward once
     /// the message was correctly ingested.
     async fn commit(&self) {
-        debug!("Messages has been consumed");
         self.consumer.commit().await;
+        trace!("Most recent offset has been committed.");
     }
 
     /// Performs a rollback in the last execution in case of failure.
@@ -50,7 +50,7 @@ impl<CONSUMER, LISTENER> KafkaSubscriber<CONSUMER, LISTENER>
     /// Backoff and Retries are capabilities provided out-of-box from AWS Lambda,
     /// therefore doesn't need to be implemented in this application.
     async fn rollback(&self, cause: String) {
-        error!("Failed to consume message: {}", cause);
+        error!("Rolling back transaction. Failed to consume message: {}.", cause);
         self.consumer.rollback().await;
     }
 }
