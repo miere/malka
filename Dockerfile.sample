@@ -1,0 +1,3 @@
+FROM miere/malka-consumer
+ADD sample.json /etc/malka.conf
+CMD ["/etc/malka.conf"]

@@ -11,3 +11,4 @@ target
 
 # Misc
 *.generated
+.env.sh

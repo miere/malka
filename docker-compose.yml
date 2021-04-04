@@ -1,6 +1,18 @@
 version: '3'
 
 services:
+    malka:
+      image: local/malka-consumer
+      depends_on:
+        kafka:
+          condition: service_healthy
+      environment:
+        KAFKA_BROKERS: "kafka:19092"
+        RUST_LOG: "malka_consumer=debug,rdkafka::consumer=trace"
+        AWS_ACCESS_KEY_ID: "${AWS_ACCESS_KEY_ID}"
+        AWS_SECRET_ACCESS_KEY: "${AWS_SECRET_ACCESS_KEY}"
+        AWS_DEFAULT_REGION: "${AWS_DEFAULT_REGION}"
+
     zookeeper:
       image: zookeeper:3.4.9
       hostname: zookeeper
@@ -31,6 +43,12 @@ services:
             - kafka-data:/var/lib/kafka/data
         depends_on:
             - zookeeper
+        healthcheck:
+          test: |
+            kafka-topics --create --if-not-exists --topic user.update --partitions 10 --replication-factor 1 --zookeeper zookeeper:2181 &&
+            kafka-topics --create --if-not-exists --topic user.delete --partitions 10 --replication-factor 1 --zookeeper zookeeper:2181
+          timeout: 20s
+          retries: 10
 
 volumes:
     zookeeper-data:

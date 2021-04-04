@@ -1,4 +1,10 @@
 [
-    { "topic_name": "user.delete", "target_functions": ["user_deleted"] },
-    { "topic_name": "user.update", "topic_number_of_consumers": 2, "target_functions": ["user_updated"] }
+  {
+    "topic_name": "user.delete",
+    "topic_number_of_consumers": 2,
+    "topic_max_buffer_size": 17,
+    "target_functions": [
+      "user_deleted"
+    ]
+  }
 ]
