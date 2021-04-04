@@ -2,10 +2,10 @@ use std::time::{Duration, Instant};
 
 use async_trait::async_trait;
 use rdkafka::{ClientConfig, Message, TopicPartitionList};
-use rdkafka::consumer::{CommitMode, Consumer, DefaultConsumerContext, StreamConsumer};
+use rdkafka::consumer::{CommitMode, Consumer, DefaultConsumerContext, BaseConsumer};
 use rdkafka::message::BorrowedMessage;
 use rdkafka::util::Timeout;
-use log::debug;
+use log::{debug, trace};
 
 use crate::error::Result;
 use crate::kafka::consumer::{InFlightRecord, KafkaConsumer, KafkaConsumerListener, KafkaConsumerResult, KafkaConsumerTransaction};
@@ -20,7 +20,7 @@ const KAFKA_TIMEOUT: Timeout = Timeout::After(TIMEOUT);
 /// The default KafkaConsumer implementation. It wraps away
 /// the complexity of consuming message using `rdkafka`.
 pub struct DefaultKafkaConsumer {
-    stream_consumer: StreamConsumer<DefaultConsumerContext>,
+    stream_consumer: BaseConsumer<DefaultConsumerContext>,
     max_buffer_size: usize,
     max_buffer_await_time: Duration,
     group_instance_id: String,
@@ -35,7 +35,7 @@ impl DefaultKafkaConsumer {
         cfg: ClientConfig
     ) -> Result<Self> {
         let context = DefaultConsumerContext {};
-        let stream_consumer: StreamConsumer<DefaultConsumerContext> = cfg.create_with_context(context)?;
+        let stream_consumer: BaseConsumer<DefaultConsumerContext> = cfg.create_with_context(context)?;
         stream_consumer.subscribe(&[&topic_name])?;
 
         Ok(DefaultKafkaConsumer {
@@ -58,9 +58,14 @@ impl DefaultKafkaConsumer {
         let start = Instant::now();
         let mut elapsed = start.elapsed();
         while elapsed <= self.max_buffer_await_time && buffer.len() < self.max_buffer_size {
-            let message = self.stream_consumer.recv().await?;
-            let record = self.read_received_message(&message);
-            buffer.push(record);
+            trace!("[{}] Buffering messages...", &self.group_instance_id);
+            let optional_message = self.stream_consumer.poll(self.max_buffer_await_time);
+            if let Some(result) = optional_message {
+                let message = result?;
+                let record = self.read_received_message(&message);
+                buffer.push(record);
+            }
+
             elapsed = start.elapsed();
         }
         Ok(buffer)
@@ -80,7 +85,6 @@ impl<LISTENER> KafkaConsumer<LISTENER> for DefaultKafkaConsumer
             Ok(received_message) => {
                 debug!("[{}] Consuming {} message(s)", &self.group_instance_id, received_message.len());
                 let result = listener.consume(received_message).await;
-                debug!("{} message(s) consumed", received_message.len());
                 result
             },
             Err(failure) => {
@@ -98,7 +102,7 @@ impl KafkaConsumerTransaction
     async fn commit(&self) {
         let result = self.stream_consumer.commit_consumer_state(CommitMode::Sync);
         if let Err(cause) = result {
-            panic!("{}. \nDetails: {:?}", MSG_FAIL_TO_COMMIT, cause)
+            panic!("[{}] {}. \nDetails: {:?}", &self.group_instance_id, MSG_FAIL_TO_COMMIT, cause)
         }
     }
 
@@ -152,7 +156,10 @@ mod integration_tests {
             .set("fetch.wait.max.ms", "100")
             .set("batch.num.messages", "1");
         let consumer = DefaultKafkaConsumer::create(
-            "test".to_string(), 1, 100, config).unwrap();
+            "group_id_instance".to_string(),
+            "test".to_string(),
+            1, 100,
+            config).unwrap();
         let result = consumer.consume(&listener).await;
 
         assert_eq!(KafkaConsumerResult::Succeeded, result);
