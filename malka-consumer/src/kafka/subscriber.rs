@@ -2,9 +2,9 @@ use std::sync::Arc;
 use std::sync::atomic::AtomicBool;
 use std::sync::atomic::Ordering::Acquire;
 
-use log::{debug, error, trace};
+use log::{error, trace};
 
-use KafkaConsumerResult::{Failed, Succeeded};
+use KafkaConsumerResult::{Failed, Succeeded, NoMessagesConsumed};
 
 use crate::kafka::consumer::{KafkaConsumer, KafkaConsumerListener, KafkaConsumerResult, KafkaConsumerTransaction};
 
@@ -27,11 +27,11 @@ impl<CONSUMER, LISTENER> KafkaSubscriber<CONSUMER, LISTENER>
     /// The loop will be interrupted once `should_poll_next_messages` is set to `false`.
     pub async fn main_loop(&self) {
         while self.should_poll_next_messages.load(Acquire) {
-            trace!("Polling messages...");
             let result = self.consumer.consume(&self.listener).await;
             match result {
                 Failed(cause) => self.rollback(cause).await,
-                Succeeded => self.commit().await
+                Succeeded => self.commit().await,
+                NoMessagesConsumed => {}
             }
         }
     }

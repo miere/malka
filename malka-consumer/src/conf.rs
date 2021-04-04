@@ -36,6 +36,8 @@ impl SubscriptionConfig {
         let mut config = SubscriptionConfig::create_default_kafka_config();
         config.set("group.id", group_id);
         config.set("group.instance.id", group_instance_id);
+        config.set("fetch.wait.max.ms", &self.topic_max_buffer_await_time.to_string());
+        config.set("batch.num.messages", &self.topic_max_buffer_size.to_string());
 
         if let Some(extra_config) = &self.consumer_configuration {
             for (key, value) in extra_config {

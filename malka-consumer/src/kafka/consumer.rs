@@ -20,7 +20,7 @@ pub trait KafkaConsumerTransaction {
 /// The resulting outcome of a message consumption.
 #[derive(Debug,PartialEq,Clone)]
 pub enum KafkaConsumerResult {
-    Succeeded, Failed(String)
+    Succeeded, NoMessagesConsumed, Failed(String)
 }
 
 /// Defines a listener for the Kafka consumer.

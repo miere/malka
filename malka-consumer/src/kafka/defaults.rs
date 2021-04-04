@@ -23,10 +23,12 @@ pub struct DefaultKafkaConsumer {
     stream_consumer: StreamConsumer<DefaultConsumerContext>,
     max_buffer_size: usize,
     max_buffer_await_time: Duration,
+    group_instance_id: String,
 }
 
 impl DefaultKafkaConsumer {
     pub fn create(
+        group_instance_id: String,
         topic_name: String,
         max_buffer_size: usize,
         max_buffer_await_time_millis: u64,
@@ -37,6 +39,7 @@ impl DefaultKafkaConsumer {
         stream_consumer.subscribe(&[&topic_name])?;
 
         Ok(DefaultKafkaConsumer {
+            group_instance_id,
             stream_consumer,
             max_buffer_await_time: Duration::from_millis(max_buffer_await_time_millis),
             max_buffer_size
@@ -70,13 +73,18 @@ impl<LISTENER> KafkaConsumer<LISTENER> for DefaultKafkaConsumer
 
     async fn consume(&self, listener: &LISTENER) -> KafkaConsumerResult {
         match self.consume_and_buffer_messages().await {
+            Ok(received_message) if received_message.is_empty() => {
+                debug!("[{}] No messages received.", &self.group_instance_id);
+                KafkaConsumerResult::NoMessagesConsumed
+            },
             Ok(received_message) => {
+                debug!("[{}] Consuming {} message(s)", &self.group_instance_id, received_message.len());
                 let result = listener.consume(received_message).await;
                 debug!("{} message(s) consumed", received_message.len());
                 result
             },
             Err(failure) => {
-                let msg = format!("{}. \nDetails: {:?}", MSG_FAIL_TO_POLL, failure);
+                let msg = format!("[{}] {}. \nDetails: {:?}", &self.group_instance_id, MSG_FAIL_TO_POLL, failure);
                 KafkaConsumerResult::Failed(msg)
             }
         }
