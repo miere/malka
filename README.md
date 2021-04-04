@@ -3,56 +3,11 @@ A managed service that leverages AWS Lambda as first-class Kafka consumers.
 
 ## Documentation
 The main documentation is available in [the Wiki pages](https://github.com/miere/malka/wiki/) of this
-repository. Here are most important topics:
-- [Deploying Malka in your AWS infrastructure](https://github.com/miere/malka/wiki/Deploying-Malka-in-your-AWS)
-- [AWS Deployment Infrastructure Overview](https://github.com/miere/malka/wiki/AWS-Deployment-Infrastructure)
-- [Docker Container Architecture Overview](https://github.com/miere/malka/wiki/Docker-Container-Architecture)
-
-
-## Usage
-Malka is containerised and publicaly available [for download](https://hub.docker.com/r/miere/malka-consumer)
-as a Docker image. You can use this image to deploy it on your favourite container orchestration
-platform (e.g. ECS, BeanStalk, K8s, etc).
-
-The easiest (but a bit opinionated) method to deploy it would be using Terraform.
-
-```terraform
-module "malka" {
-  source  = "miere/malka/aws"
-  version = "0.2.0"
-  
-  # AWS network configuration
-  subnet_ids = data.aws_subnet_ids.default.ids
-  vpc_id = data.aws_vpc.default.id
-  
-  # Kafka Brokers URLs.
-  kafka_brokers = ["${var.my_kafka_broker_url}"]
-
-  # Malka Configuration
-  configuration = [
-    # Each entry means a consumer group
-    {
-      # Topic to subscribe
-      topic_name = "topic",
-
-      # Number of parallel consumers for this topic.
-      # It implies in the number of Lambda functions that will be invoked simultaneously.
-      topic_number_of_consumers = 2,
-
-      # Custom Kafka configuration for this consumer group.
-      # For further details, please check the options available at the librdkafka documentation
-      # https://github.com/edenhill/librdkafka/blob/master/CONFIGURATION.md
-      consumer_configuration = {},
-      
-      # The AWS functions that will receive the notification
-      target_functions = ["my_lambda_function"]
-    }
-  ]
-}
-```
-For a complete example, please check the [example folder](https://github.com/miere/malka/blob/main/example/main.tf). For
-more details, please check the [documentation page](https://github.com/miere/malka/wiki/Deploying-Malka-in-your-AWS) that
-covers this topic.
+repository. To get familiarised with Malka, you might be interested in:
+- How to [deploying Malka](https://github.com/miere/malka/wiki/Deploying-Malka-in-your-AWS) in your AWS infrastructure
+- Understand [how Malka works](https://github.com/miere/malka/wiki/How-Malka's-Consumes-Messages%3F) internally
+- Have a sense of which [AWS services are used](https://github.com/miere/malka/wiki/AWS-Deployment-Infrastructure) by Malka default deployment script
+- Or even check out how the [docker container](https://github.com/miere/malka/wiki/Docker-Container-Architecture) was architected
 
 ## License
 Copyright 2021 - Malka maintainers and contributors
