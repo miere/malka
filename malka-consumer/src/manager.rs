@@ -32,26 +32,35 @@ impl Default for SubscriptionManager {
 
 impl SubscriptionManager {
 
+    /// Subscribe to a give `topic subscription configuration`.
     pub fn subscribe(&mut self, subscription: SubscriptionConfig) -> Result<()> {
         for target_function in subscription.target_functions.iter() {
-            let subscriber = SubscriptionManager::create_subscriber_from(&subscription, target_function)?;
-            let flag = Arc::clone(&subscriber.should_poll_next_messages);
-
-            let future = tokio::spawn(async move {
-                subscriber.main_loop().await
-            });
-
-            self.subscribers.insert(subscription.topic_name.clone(), flag);
-            // let pinned_future = Box::pin();
-            self.subscribers_thread_future.push(future);
+            for parallel_consumer_id in 0..subscription.topic_number_of_consumers {
+                self.subscribe_to_function(&subscription, target_function, parallel_consumer_id)?;
+            }
         }
 
         Ok(())
     }
 
-    fn create_subscriber_from(subscription: &SubscriptionConfig, target_function: &str) -> Result<DefaultKafkaSubscriber>
+    fn subscribe_to_function(&mut self, subscription: &SubscriptionConfig, target_function: &str, parallel_consumer_id: u32) -> Result<()> {
+        let subscriber = SubscriptionManager::create_subscriber_from(
+            subscription, target_function, parallel_consumer_id)?;
+        let flag = Arc::clone(&subscriber.should_poll_next_messages);
+
+        let future = tokio::spawn(async move {
+            subscriber.main_loop().await
+        });
+
+        self.subscribers.insert(subscription.topic_name.clone(), flag);
+        self.subscribers_thread_future.push(future);
+
+        Ok(())
+    }
+
+    fn create_subscriber_from(subscription: &SubscriptionConfig, target_function: &str, parallel_consumer_id: u32) -> Result<DefaultKafkaSubscriber>
     {
-        let config = subscription.as_client_config_for(target_function);
+        let config = subscription.as_client_config_for(target_function, parallel_consumer_id);
         let listener = AwsLambdaKafkaConsumerListener::create(target_function.to_string());
         let should_poll_next_messages = Arc::new(AtomicBool::new(true));
         let consumer = DefaultKafkaConsumer::create(
@@ -79,7 +88,7 @@ impl Drop for SubscriptionManager {
     fn drop(&mut self) {
         let subscribers = &mut self.subscribers;
 
-        for (topic_name, flag) in subscribers.into_iter() {
+        for (topic_name, flag) in subscribers.iter_mut() {
             info!("Unsubscribing to topic {}", &topic_name);
             flag.store(false, Release);
             trace!("Successfully unsubscribed to topic {}", topic_name)

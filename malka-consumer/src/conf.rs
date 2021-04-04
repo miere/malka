@@ -26,12 +26,16 @@ fn max_buffer_await_time_ms() -> u64 { 1000 }
 impl SubscriptionConfig {
 
     /// Creates a rdkafka::ClientConfig object based on this configuration.
-    pub fn as_client_config_for(&self, target_function: &str) -> ClientConfig {
-        let group_id = format!("{}-{}", &self.topic_name, target_function);
+    pub fn as_client_config_for(&self, target_function: &str, parallel_consumer_id: u32) -> ClientConfig {
+        let group_id = format!("{}-{}", &self.topic_name, &target_function);
         info!("Consumer Group ID: {}", &group_id);
+
+        let group_instance_id = format!("{}-{}-{}", &self.topic_name, target_function, parallel_consumer_id);
+        info!("Consumer Group ID: {}", &group_instance_id);
 
         let mut config = SubscriptionConfig::create_default_kafka_config();
         config.set("group.id", group_id);
+        config.set("group.instance.id", group_instance_id);
 
         if let Some(extra_config) = &self.consumer_configuration {
             for (key, value) in extra_config {
@@ -46,11 +50,11 @@ impl SubscriptionConfig {
         let mut cfg = ClientConfig::new();
 
         let kafka_brokers = env::var("KAFKA_BROKERS")
-            .unwrap_or("127.0.0.1:9092".to_string());
+            .unwrap_or_else(|_| "127.0.0.1:9092".to_string());
         info!("Connecting to brokers: {}", &kafka_brokers);
 
         let security_protocol = env::var("KAFKA_SECURITY_PROTOCOL")
-            .unwrap_or("plaintext".to_string());
+            .unwrap_or_else(|_| "plaintext".to_string());
         info!("Using security protocol: {}", &security_protocol);
 
         cfg.set("bootstrap.servers", kafka_brokers)
@@ -58,7 +62,7 @@ impl SubscriptionConfig {
             .set("enable.auto.commit", "false")
             .set_log_level(RDKafkaLogLevel::Debug);
 
-        return cfg;
+        cfg
     }
 }
 
